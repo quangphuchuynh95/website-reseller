@@ -24,10 +24,12 @@ class Subscription extends BaseModel
         'next_expires_at',
         'status',
         'charge_id',
+        'domain',
     ];
 
     protected $casts = [
         'name' => SafeContent::class,
+        'domain' => SafeContent::class,
         'commit_price' => 'decimal:2',
         'start_at' => 'datetime',
         'next_expires_at' => 'datetime',

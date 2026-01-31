@@ -70,10 +70,13 @@ class CheckoutController extends BaseController
         $currency = get_application_currency()->title ?? 'USD';
         $customer = auth('wr_customer')->user();
 
-        // Validate payment method
+        // Validate payment method and domain
         $request->validate([
             'payment_method' => 'required|string',
+            'domain' => 'required|string|max:255',
         ]);
+
+        $domain = $request->input('domain');
 
         // Store checkout data
         CheckoutHelper::setCheckoutData([
@@ -84,6 +87,7 @@ class CheckoutController extends BaseController
             'payment_interval' => $price->payment_interval,
             'customer_id' => $customer->getKey(),
             'payment_method' => $paymentMethod,
+            'domain' => $domain,
         ]);
 
         // Prepare payment data
@@ -143,7 +147,7 @@ class CheckoutController extends BaseController
         }
 
         // Create Subscription
-        $subscription = $this->createSubscription($customer, $theme, $package, $price, $paymentData['charge_id']);
+        $subscription = $this->createSubscription($customer, $theme, $package, $price, $paymentData['charge_id'], $domain);
 
         // Store the subscription and website IDs in checkout data
         CheckoutHelper::setCheckoutData([
@@ -288,7 +292,8 @@ class CheckoutController extends BaseController
         Models\Theme $theme,
         Models\Package $package,
         Models\PackagePrice $price,
-        ?string $chargeId = null
+        ?string $chargeId = null,
+        ?string $domain = null
     ): Models\Subscription {
         return Models\Subscription::create([
             'customer_id' => $customer->id,
@@ -301,6 +306,7 @@ class CheckoutController extends BaseController
             'start_at' => null,
             'next_expires_at' => null,
             'charge_id' => $chargeId,
+            'domain' => $domain,
         ]);
     }
 }

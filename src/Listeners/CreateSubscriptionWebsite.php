@@ -42,7 +42,7 @@ class CreateSubscriptionWebsite
             'subscription_id' => $subscription->id,
             'theme_id' => $theme->id,
             'source_code_id' => $theme->source_code_id,
-            'domain' => null,
+            'domain' => $subscription->domain,
             'status' => 'pending',
         ]);
     }
