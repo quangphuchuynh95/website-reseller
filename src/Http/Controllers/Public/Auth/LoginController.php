@@ -21,10 +21,10 @@ class LoginController extends BaseController
             'password' => 'required',
         ]);
 
-        if (Auth::guard('customer')->attempt($credentials, $request->filled('remember'))) {
+        if (Auth::guard('wr_customer')->attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('customer.websites'));
+            return redirect()->intended(route('wr.front.customer.websites'));
         }
 
         return back()->withErrors([

@@ -2,22 +2,22 @@
 
 return [
     'guards' => [
-        'customer' => [
+        'wr_customer' => [
             'driver' => 'session',
-            'provider' => 'customers',
+            'provider' => 'wr_customers',
         ],
     ],
 
     'providers' => [
-        'customers' => [
+        'wr_customers' => [
             'driver' => 'eloquent',
             'model' => QuangPhuc\WebsiteReseller\Models\Customer::class,
         ],
     ],
 
     'passwords' => [
-        'customers' => [
-            'provider' => 'customers',
+        'wr_customers' => [
+            'provider' => 'wr_customers',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

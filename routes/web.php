@@ -23,43 +23,43 @@ use QuangPhuc\WebsiteReseller\Http\Controllers\Public\UserWebsiteController;
 
 
 Theme::registerRoutes(function (): void {
-    // Authentication routes
-    Route::prefix('customer')->name('customer.')->group(function () {
-        Route::name('auth.')->group(function () {
-            Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-            Route::post('login', [LoginController::class, 'login'])->name('login.post');
-            Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-            Route::post('register', [RegisterController::class, 'register'])->name('register.post');
-            Route::post('logout', LogoutController::class)->name('logout');
+    Route::name('wr.front.')->group(function () {
+        // Authentication routes
+        Route::prefix('customer')->name('customer.')->group(function () {
+            Route::name('auth.')->group(function () {
+                Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+                Route::post('login', [LoginController::class, 'login'])->name('login.post');
+                Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+                Route::post('register', [RegisterController::class, 'register'])->name('register.post');
+                Route::post('logout', LogoutController::class)->name('logout');
+            });
+
+            // User routes (protected)
+            Route::middleware('auth:customer')->group(function () {
+                Route::get('websites', UserWebsiteController::class)->name('websites');
+            });
         });
 
-        // User routes (protected)
-        Route::middleware('auth:customer')->group(function () {
-            Route::get('websites', UserWebsiteController::class)->name('websites');
-        });
-    });
-
-    Route::name('theme.')->group(function () {
-        // Theme routes
-        Route::get('themes', ThemesIndexController::class)->name('index');
+        Route::name('theme.')->group(function () {
+            // Theme routes
+            Route::get('themes', ThemesIndexController::class)->name('index');
 //        Route::get('themes/{category}', ThemeCategoryController::class)->name('public.themes.category');
 //        Route::get('themes/detail/{theme}', ThemeDetailController::class)->name('public.themes.detail');
-        Route::get('theme/preview/{theme}', ThemePreviewController::class)->name('preview');
+            Route::get('theme/preview/{theme}', ThemePreviewController::class)->name('preview');
+        });
+
+        Route::name('website.')->prefix('website')->group(function () {
+            // Order routes
+            Route::get('order/{theme}/package', PackageSelectionController::class)->name('order.package');
+            Route::get('order/{theme}/{package}/price', PackagePriceSelectionController::class)->name('order.package_price');
+            Route::get('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'getCheckout'])->name('order.checkout');
+            Route::post('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'postCheckout'])->name('order.checkout.post');
+
+            // Checkout callback routes
+            Route::get('order/checkout/success/{token?}', [CheckoutController::class, 'getCheckoutSuccess'])->name('order.checkout.success');
+            Route::get('order/checkout/cancel/{token?}', [CheckoutController::class, 'getCheckoutCancel'])->name('order.checkout.cancel');
+        });
     });
-
-    Route::name('website.')->prefix('website')->group(function () {
-        // Order routes
-        Route::get('order/{theme}/package', PackageSelectionController::class)->name('order.package');
-        Route::get('order/{theme}/{package}/price', PackagePriceSelectionController::class)->name('order.package_price');
-        Route::get('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'getCheckout'])->name('order.checkout');
-        Route::post('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'postCheckout'])->name('order.checkout.post');
-
-        // Checkout callback routes
-        Route::get('order/checkout/success/{token?}', [CheckoutController::class, 'getCheckoutSuccess'])->name('order.checkout.success');
-        Route::get('order/checkout/cancel/{token?}', [CheckoutController::class, 'getCheckoutCancel'])->name('order.checkout.cancel');
-    });
-
-
 });
 
 

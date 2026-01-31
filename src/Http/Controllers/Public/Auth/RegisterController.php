@@ -25,8 +25,8 @@ class RegisterController extends BaseController
 
         $customer = Customer::create($data);
 
-        Auth::guard('customer')->login($customer);
+        Auth::guard('wr_customer')->login($customer);
 
-        return redirect()->route('customer.websites');
+        return redirect()->intended(route('wr.front.customer.websites'));
     }
 }

@@ -10,11 +10,11 @@ class LogoutController extends BaseController
 {
     public function __invoke(Request $request)
     {
-        Auth::guard('customer')->logout();
+        Auth::guard('wr_customer')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('customer.auth.login');
+        return redirect()->route('wr.front.customer.auth.login');
     }
 }

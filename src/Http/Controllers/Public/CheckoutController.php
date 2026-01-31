@@ -26,9 +26,9 @@ class CheckoutController extends BaseController
         }
 
         // Ensure customer is authenticated
-        if (! auth('customer')->check()) {
+        if (! auth('wr_customer')->check()) {
             return redirect()
-                ->route('public.customer.auth.login')
+                ->route('wr.front.customer.auth.login')
                 ->with('error_msg', __('Please login to continue checkout.'));
         }
 
@@ -41,7 +41,7 @@ class CheckoutController extends BaseController
             'package_price_id' => $price->id,
             'amount' => $price->price,
             'payment_interval' => $price->payment_interval,
-            'customer_id' => auth('customer')->id(),
+            'customer_id' => auth('wr_customer')->id(),
         ]);
 
         return Theme::scope('website-reseller.order.checkout', [
@@ -64,7 +64,7 @@ class CheckoutController extends BaseController
         }
 
         // Ensure customer is authenticated
-        if (! auth('customer')->check()) {
+        if (! auth('wr_customer')->check()) {
             return $this->httpResponse()
                 ->setError()
                 ->setMessage(__('Please login to continue checkout.'));
@@ -74,7 +74,7 @@ class CheckoutController extends BaseController
         $paymentMethod = $request->input('payment_method');
         $amount = $price->price;
         $currency = get_application_currency()->title ?? 'USD';
-        $customer = auth('customer')->user();
+        $customer = auth('wr_customer')->user();
 
         // Validate payment method
         $request->validate([
@@ -172,6 +172,7 @@ class CheckoutController extends BaseController
             'status' => PaymentStatusEnum::PENDING,
         ]);
 
+
         // Redirect to success page
         return $this->httpResponse()
             ->setNextUrl(PaymentHelper::getRedirectURL($token))
@@ -184,7 +185,7 @@ class CheckoutController extends BaseController
 
         if (empty($checkoutData)) {
             return redirect()
-                ->route('public.theme.index')
+                ->route('wr.front.public.theme.index')
                 ->with('error_msg', __('Invalid checkout session.'));
         }
 
@@ -253,7 +254,7 @@ class CheckoutController extends BaseController
         CheckoutHelper::clearCheckoutSession();
 
         return redirect()
-            ->route('public.theme.index')
+            ->route('wr.front.public.theme.index')
             ->with('error_msg', $errorMessage);
     }
 

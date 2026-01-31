@@ -52,9 +52,9 @@ class WebsiteResellerServiceProvider extends ServiceProvider
 
         // Merge auth config
         config([
-            'auth.guards.customer' => config('plugins.website-reseller.auth.guards.customer'),
-            'auth.providers.customers' => config('plugins.website-reseller.auth.providers.customers'),
-            'auth.passwords.customers' => config('plugins.website-reseller.auth.passwords.customers'),
+            'auth.guards.wr_customer' => config('plugins.website-reseller.auth.guards.wr_customer'),
+            'auth.providers.wr_customers' => config('plugins.website-reseller.auth.providers.wr_customers'),
+            'auth.passwords.wr_customers' => config('plugins.website-reseller.auth.passwords.wr_customers'),
         ]);
 
         DashboardMenu::default()->beforeRetrieving(function () {

@@ -46,7 +46,7 @@ class HookServiceProvider extends ServiceProvider
                 return $checkoutToken;
             }
 
-            return route('public.website.order.checkout.success', $checkoutToken ?: '');
+            return route('wr.front.website.order.checkout.success', $checkoutToken ?: '');
         }, 120);
 
         // Define cancel/failure redirect URL
@@ -57,7 +57,7 @@ class HookServiceProvider extends ServiceProvider
                 return $checkoutToken;
             }
 
-            return route('public.website.order.checkout.cancel', $checkoutToken ?: '');
+            return route('wr.front.website.order.checkout.cancel', $checkoutToken ?: '');
         }, 120);
 
         // Listen for payment processed

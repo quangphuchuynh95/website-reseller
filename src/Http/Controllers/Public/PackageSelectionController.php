@@ -11,7 +11,7 @@ class PackageSelectionController extends BaseController
     public function __invoke(Models\Theme $theme)
     {
         if ($theme->packages()->count() === 1) {
-            return redirect()->route('website.order.package_price', [
+            return redirect()->route('wr.front.website.order.package_price', [
                 'theme' => $theme,
                 'package' => $theme->packages()->first(),
             ]);
