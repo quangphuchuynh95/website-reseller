@@ -3,55 +3,114 @@
 namespace QuangPhuc\WebsiteReseller\Services;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use QuangPhuc\WebsiteReseller\Models\Website;
 
 class WebsiteService
 {
-
-
-    public function setupWebsite(Website $website)
+    public function setupWebsite(Website $website): void
     {
-        Schema::connection('websites')->createDatabase($website->database_name);
+        $website->loadMissing(['theme', 'sourceCode']);
+
+        $databaseName = $this->slugifyDomain($website->domain);
+
+        $this->createDatabase($databaseName);
+
+        $this->importDatabaseFile($website, $databaseName);
+
+        $this->runSetupCommand($website, $databaseName);
 
         $this->buildCaddyFile($website);
 
-        Process::command($website->sourceCode->setup_command)
+        app(CaddyService::class)->reloadCaddyService();
+    }
+
+    public function slugifyDomain(string $domain): string
+    {
+        return Str::slug($domain, '_');
+    }
+
+    protected function createDatabase(string $databaseName): void
+    {
+        Schema::connection('websites')->createDatabase($databaseName);
+
+        Log::info("Database created: {$databaseName}");
+    }
+
+    protected function importDatabaseFile(Website $website, string $databaseName): void
+    {
+        $databaseFile = $website->theme?->database_file;
+
+        if (! $databaseFile || ! Storage::exists($databaseFile)) {
+            return;
+        }
+
+        $filePath = Storage::path($databaseFile);
+
+        $dbHost = config('database.connections.websites.host');
+        $dbPort = config('database.connections.websites.port');
+        $dbUser = config('database.connections.websites.username');
+        $dbPassword = config('database.connections.websites.password');
+
+        Process::run(sprintf(
+            'mysql -h %s -P %s -u %s -p%s %s < %s',
+            escapeshellarg($dbHost),
+            escapeshellarg($dbPort),
+            escapeshellarg($dbUser),
+            escapeshellarg($dbPassword),
+            escapeshellarg($databaseName),
+            escapeshellarg($filePath)
+        ))->throw();
+
+        Log::info("Database imported for website {$website->domain}");
+    }
+
+    protected function runSetupCommand(Website $website, string $databaseName): void
+    {
+        $setupCommand = $website->sourceCode?->setup_command;
+
+        if (! $setupCommand) {
+            return;
+        }
+
+        Process::command($setupCommand)
             ->env([
-                'DB_HOST' => config('database.connections.children_website.host'),
-                'DB_PORT' => config('database.connections.children_website.port'),
-                'DB_DATABASE' => config('database.connections.children_website.database'),
-                'DB_USERNAME' => config('database.connections.children_website.username'),
-                'DB_PASSWORD' => config('database.connections.children_website.password'),
+                'DOMAIN' => $website->domain,
+                'SLUGIFIED_DOMAIN' => $this->slugifyDomain($website->domain),
+                'DB_HOST' => config('database.connections.websites.host'),
+                'DB_PORT' => config('database.connections.websites.port'),
+                'DB_DATABASE' => $databaseName,
+                'DB_USERNAME' => config('database.connections.websites.username'),
+                'DB_PASSWORD' => config('database.connections.websites.password'),
             ])
-            ->path($website)
             ->run()
             ->throw();
 
-        app(CaddyService::class)->reloadCaddyService();
-
-
-        // Create Caddy file
-        // Run setup script
-        //    - [ ] Installer script
-        //        - [ ] InstallController (received lang)
-        //        - [ ] EnvironmentController (received database)
-        //        - [ ] AccountController (received superadmin information)
-
-        // Reload caddy service
+        Log::info("Setup command executed for website {$website->domain}");
     }
 
     public function buildCaddyFile(Website $website): void
     {
-        $renderedCaddy = Blade::render($website->sourceCode->caddy_template, [
+        $caddyTemplate = $website->sourceCode?->caddy_template;
+
+        if (! $caddyTemplate) {
+            return;
+        }
+
+        $slugifiedDomain = $this->slugifyDomain($website->domain);
+
+        $renderedCaddy = Blade::render($caddyTemplate, [
             'website' => $website,
             'database' => [
-                ...config('database.connections.children_website'),
-                'database' => $website->database_name,
+                ...config('database.connections.websites'),
+                'database' => $slugifiedDomain,
             ],
         ]);
 
-        app(CaddyService::class)->putWebsiteConfig($website->domain, $renderedCaddy);
+        app(CaddyService::class)->putWebsiteConfig($slugifiedDomain, $renderedCaddy);
     }
 }
