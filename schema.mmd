@@ -1,0 +1,82 @@
+erDiagram
+    direction BT
+
+    Package {
+        int id PK
+        string name
+        string description
+        string content
+        int sequence
+        json features
+    }
+
+    PackagePrice {
+        int id PK
+        string name
+        int sequence
+        string payment_interval
+        float price
+    }
+    PackagePrice zero or more to only one Package : package_id-id
+
+
+    Subscription {
+        int id PK
+        string name
+        float commit_price
+        string payment_interval
+        timestamp start_at
+        timestamp next_expires_at
+    }
+    Subscription zero or more to only one Package : package_id-id
+    Subscription zero or more to only one PackagePrice : package_price_id-id
+
+    SubscriptionPayment {
+        int id PK
+    }
+    SubscriptionPayment zero or more to only one Payment : payment_id-id
+    SubscriptionPayment zero or more to only one Subscription : subscription_id-id
+
+
+    Category {
+        int id PK
+        string name
+        string image
+    }
+    Category zero or more to zero or more Theme : theme_category
+
+    Theme {
+        int id PK
+        string name
+        string preview_url
+        string image
+    }
+    Theme zero or more to only one Package : theme_package
+    Theme zero or more to only one SourceCode : source_code_id-id
+
+    SourceCode {
+        int id PK
+        string name
+        string slug "unique"
+        string slug "unique"
+        text caddy_template
+        text setup_command
+    }
+
+    Customer {
+        int id PK
+        string name
+        string email "unique"
+        string password
+    }
+    Customer only one to zero or more Website : websites
+
+    Website {
+        int id PK
+        string name
+        string domain "unique"
+        string database_name
+    }
+    Website zero or more to only one Subscription : subscription_id-id
+    Website zero or more to only one Theme : theme_id-id
+    Website zero or more to only one SourceCode : source_code_id-id

@@ -1,0 +1,11 @@
+{
+    "id": "quangphuc/website-reseller",
+    "name": "Website Reseller",
+    "namespace": "QuangPhuc\\WebsiteReseller\\",
+    "provider": "QuangPhuc\\WebsiteReseller\\Providers\\WebsiteResellerServiceProvider",
+    "author": "",
+    "url": "",
+    "version": "1.0.0",
+    "description": "",
+    "minimum_core_version": "7.6.3"
+}
