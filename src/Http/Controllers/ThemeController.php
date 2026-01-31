@@ -41,11 +41,18 @@ class ThemeController extends BaseController
             $data = $request->validated();
             $packages = Arr::pull($data, "packages", default: []);
             $categories = Arr::pull($data, "categories", default: []);
+            Arr::forget($data, 'database_file');
 
             $form->getModel()->fill($data)->save();
             $form->getModel()->packages()->sync($packages);
             $form->getModel()->categories()->sync($categories);
         });
+
+        if ($databaseFile = $request->file('database_file')) {
+            $filename = "website_{$form->getModel()->id}.sql";
+            $path = $databaseFile->storeAs('themes/databases', $filename);
+            $form->getModel()->update(['database_file' => $path]);
+        }
 
         return $this
             ->httpResponse()
@@ -67,11 +74,18 @@ class ThemeController extends BaseController
             $data = $request->validated();
             $packages = Arr::pull($data, "packages", default: []);
             $categories = Arr::pull($data, "categories", default: []);
+            Arr::forget($data, 'database_file');
 
             $form->getModel()->fill($data)->save();
             $form->getModel()->packages()->sync($packages);
             $form->getModel()->categories()->sync($categories);
         });
+
+        if ($databaseFile = $request->file('database_file')) {
+            $filename = "website_{$theme->id}.sql";
+            $path = $databaseFile->storeAs('themes/databases', $filename);
+            $theme->update(['database_file' => $path]);
+        }
 
         return $this
             ->httpResponse()

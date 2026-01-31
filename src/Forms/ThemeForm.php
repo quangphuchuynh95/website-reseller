@@ -2,10 +2,12 @@
 
 namespace QuangPhuc\WebsiteReseller\Forms;
 
+use Botble\Base\Forms\FieldOptions\FileFieldOption;
 use Botble\Base\Forms\FieldOptions\MediaImageFieldOption;
 use Botble\Base\Forms\FieldOptions\NameFieldOption;
 use Botble\Base\Forms\FieldOptions\SelectFieldOption;
 use Botble\Base\Forms\FieldOptions\TextFieldOption;
+use Botble\Base\Forms\Fields\FileField;
 use Botble\Base\Forms\Fields\MediaImageField;
 use Botble\Base\Forms\Fields\SelectField;
 use Botble\Base\Forms\Fields\TextField;
@@ -21,6 +23,7 @@ class ThemeForm extends FormAbstract
     public function setup(): void
     {
         $this
+            ->hasFiles()
             ->model(Theme::class)
             ->setValidatorClass(ThemeRequest::class)
             ->add('name', TextField::class, NameFieldOption::make()->required())
@@ -69,6 +72,13 @@ class ThemeForm extends FormAbstract
                     })
                     ->searchable()
                     ->allowClear()
+            )
+            ->add(
+                'database_file',
+                FileField::class,
+                FileFieldOption::make()
+                    ->label('Database File')
+                    ->helperText('Upload an SQL file for theme database (Max: 100MB)')
             );
     }
 }

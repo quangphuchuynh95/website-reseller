@@ -4,10 +4,13 @@ namespace QuangPhuc\WebsiteReseller\Models;
 
 use Botble\Base\Casts\SafeContent;
 use Botble\Base\Models\BaseModel;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use QuangPhuc\WebsiteReseller\Observers\ThemeObserver;
 
+#[ObservedBy(ThemeObserver::class)]
 class Theme extends BaseModel
 {
     protected $table = 'wr_themes';

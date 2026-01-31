@@ -303,19 +303,4 @@ class CheckoutController extends BaseController
             'charge_id' => $chargeId,
         ]);
     }
-
-    protected function createWebsite(
-        Models\Customer $customer,
-        Models\Subscription $subscription,
-        Models\Theme $theme
-    ): Models\Website {
-        return Models\Website::create([
-            'customer_id' => $customer->id,
-            'subscription_id' => $subscription->id,
-            'theme_id' => $theme->id,
-            'source_code_id' => $theme->source_code_id ?? null,
-            'domain' => null, // Will be set later by customer
-            'status' => 'pending', // Initial status
-        ]);
-    }
 }
