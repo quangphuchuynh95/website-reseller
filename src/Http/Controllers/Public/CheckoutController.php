@@ -162,7 +162,6 @@ class CheckoutController extends BaseController
             'status' => PaymentStatusEnum::PENDING,
         ]);
 
-
         // Redirect to success page
         return $this->httpResponse()
             ->setNextUrl(PaymentHelper::getRedirectURL($token))
