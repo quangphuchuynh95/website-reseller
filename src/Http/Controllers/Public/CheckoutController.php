@@ -34,7 +34,7 @@ class CheckoutController extends BaseController
             'package_id' => $package->id,
             'package_price_id' => $price->id,
             'amount' => $price->price,
-            'payment_interval' => $price->payment_interval,
+            'subscription_period_id' => $price->subscription_period_id,
             'customer_id' => auth('wr_customer')->id(),
         ]);
 
@@ -84,7 +84,7 @@ class CheckoutController extends BaseController
             'package_id' => $package->id,
             'package_price_id' => $price->id,
             'amount' => $amount,
-            'payment_interval' => $price->payment_interval,
+            'subscription_period_id' => $price->subscription_period_id,
             'customer_id' => $customer->getKey(),
             'payment_method' => $paymentMethod,
             'domain' => $domain,
@@ -300,9 +300,9 @@ class CheckoutController extends BaseController
             'theme_id' => $theme->id,
             'package_id' => $package->id,
             'package_price_id' => $price->id,
+            'subscription_period_id' => $price->subscription_period_id,
             'name' => $package->name . ' - ' . $price->name,
             'commit_price' => $price->price,
-            'payment_interval' => $price->payment_interval,
             'start_at' => null,
             'next_expires_at' => null,
             'charge_id' => $chargeId,

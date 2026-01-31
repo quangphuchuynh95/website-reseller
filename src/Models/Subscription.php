@@ -17,9 +17,9 @@ class Subscription extends BaseModel
         'theme_id',
         'package_id',
         'package_price_id',
+        'subscription_period_id',
         'name',
         'commit_price',
-        'payment_interval',
         'start_at',
         'next_expires_at',
         'status',
@@ -54,6 +54,11 @@ class Subscription extends BaseModel
     public function packagePrice(): BelongsTo
     {
         return $this->belongsTo(PackagePrice::class);
+    }
+
+    public function subscriptionPeriod(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPeriod::class);
     }
 
     public function websites(): HasMany

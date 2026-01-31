@@ -12,8 +12,8 @@ class SubscriptionRequest extends Request
             'name' => 'required|string|max:255',
             'package_id' => 'nullable|exists:wr_packages,id',
             'package_price_id' => 'nullable|exists:wr_package_prices,id',
+            'subscription_period_id' => 'nullable|exists:wr_subscription_periods,id',
             'commit_price' => 'nullable|numeric|min:0',
-            'payment_interval' => 'nullable|string|max:50',
             'start_at' => 'nullable|date',
             'next_expires_at' => 'nullable|date',
         ];

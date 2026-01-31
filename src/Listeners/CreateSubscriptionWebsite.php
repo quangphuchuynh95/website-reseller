@@ -2,8 +2,10 @@
 
 namespace QuangPhuc\WebsiteReseller\Listeners;
 
+use Carbon\CarbonInterval;
 use Illuminate\Support\Carbon;
 use QuangPhuc\WebsiteReseller\Events\SubscriptionActivating;
+use QuangPhuc\WebsiteReseller\Models\SubscriptionPeriod;
 use QuangPhuc\WebsiteReseller\Models\Theme;
 use QuangPhuc\WebsiteReseller\Models\Website;
 
@@ -17,19 +19,15 @@ class CreateSubscriptionWebsite
             return;
         }
 
-
-        $price = $subscription->packagePrice;
-
         $now = Carbon::now();
 
-        // Calculate next expiry based on payment interval
-        $nextExpiresAt = $this->calculateNextExpiry($now, $price->payment_interval);
+        // Calculate next expiry based on subscription period
+        $nextExpiresAt = $this->calculateNextExpiry($now, $subscription->subscriptionPeriod);
 
         $subscription->update([
             'start_at' => $now,
             'next_expires_at' => $nextExpiresAt,
         ]);
-
 
         $theme = Theme::find($subscription->theme_id);
 
@@ -47,17 +45,15 @@ class CreateSubscriptionWebsite
         ]);
     }
 
-
-
-    protected function calculateNextExpiry(Carbon $startDate, ?string $interval): Carbon
+    protected function calculateNextExpiry(Carbon $startDate, ?SubscriptionPeriod $period): Carbon
     {
-        return match ($interval) {
-            'daily' => $startDate->copy()->addDay(),
-            'weekly' => $startDate->copy()->addWeek(),
-            'monthly' => $startDate->copy()->addMonth(),
-            'quarterly' => $startDate->copy()->addMonths(3),
-            'yearly', 'annually' => $startDate->copy()->addYear(),
-            default => $startDate->copy()->addMonth(),
-        };
+        if (! $period) {
+            // Default to 1 month if no period is set
+            return $startDate->copy()->addMonth();
+        }
+
+        $interval = $period->getInterval();
+
+        return $startDate->copy()->add($interval);
     }
 }

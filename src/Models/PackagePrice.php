@@ -13,14 +13,16 @@ class PackagePrice extends BaseModel
 
     protected $fillable = [
         'package_id',
+        'subscription_period_id',
         'name',
+        'description',
         'sequence',
-        'payment_interval',
         'price',
     ];
 
     protected $casts = [
         'name' => SafeContent::class,
+        'description' => SafeContent::class,
         'sequence' => 'integer',
         'price' => 'decimal:2',
     ];
@@ -28,6 +30,11 @@ class PackagePrice extends BaseModel
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
+    }
+
+    public function subscriptionPeriod(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPeriod::class);
     }
 
     public function subscriptions(): HasMany

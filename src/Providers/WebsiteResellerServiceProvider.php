@@ -113,8 +113,17 @@ class WebsiteResellerServiceProvider extends ServiceProvider
                 'permissions' => ['website-reseller.package-prices.index'],
             ])
             ->registerItem([
-                'id' => 'cms-plugins-website-reseller-themes',
+                'id' => 'cms-plugins-website-reseller-subscription-periods',
                 'priority' => 6,
+                'parent_id' => 'cms-plugins-website-reseller',
+                'name' => 'Subscription Periods',
+                'icon' => 'ti ti-calendar-time',
+                'url' => route('website-reseller.subscription-periods.index'),
+                'permissions' => ['website-reseller.subscription-periods.index'],
+            ])
+            ->registerItem([
+                'id' => 'cms-plugins-website-reseller-themes',
+                'priority' => 7,
                 'parent_id' => 'cms-plugins-website-reseller',
                 'name' => 'Themes',
                 'icon' => 'ti ti-palette',
@@ -123,7 +132,7 @@ class WebsiteResellerServiceProvider extends ServiceProvider
             ])
             ->registerItem([
                 'id' => 'cms-plugins-website-reseller-source-codes',
-                'priority' => 7,
+                'priority' => 8,
                 'parent_id' => 'cms-plugins-website-reseller',
                 'name' => 'Source Codes',
                 'icon' => 'ti ti-code',
@@ -132,7 +141,7 @@ class WebsiteResellerServiceProvider extends ServiceProvider
             ])
             ->registerItem([
                 'id' => 'cms-plugins-website-reseller-subscriptions',
-                'priority' => 8,
+                'priority' => 9,
                 'parent_id' => 'cms-plugins-website-reseller',
                 'name' => 'Subscriptions',
                 'icon' => 'ti ti-repeat',

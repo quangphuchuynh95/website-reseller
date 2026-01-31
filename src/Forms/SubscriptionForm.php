@@ -6,7 +6,6 @@ use Botble\Base\Forms\FieldOptions\DatePickerFieldOption;
 use Botble\Base\Forms\FieldOptions\NameFieldOption;
 use Botble\Base\Forms\FieldOptions\NumberFieldOption;
 use Botble\Base\Forms\FieldOptions\SelectFieldOption;
-use Botble\Base\Forms\FieldOptions\TextFieldOption;
 use Botble\Base\Forms\Fields\DatePickerField;
 use Botble\Base\Forms\Fields\NumberField;
 use Botble\Base\Forms\Fields\SelectField;
@@ -16,6 +15,7 @@ use QuangPhuc\WebsiteReseller\Http\Requests\SubscriptionRequest;
 use QuangPhuc\WebsiteReseller\Models\Package;
 use QuangPhuc\WebsiteReseller\Models\PackagePrice;
 use QuangPhuc\WebsiteReseller\Models\Subscription;
+use QuangPhuc\WebsiteReseller\Models\SubscriptionPeriod;
 
 class SubscriptionForm extends FormAbstract
 {
@@ -56,18 +56,25 @@ class SubscriptionForm extends FormAbstract
                     ->allowClear()
             )
             ->add(
+                'subscription_period_id',
+                SelectField::class,
+                SelectFieldOption::make()
+                    ->label('Subscription Period')
+                    ->choices(function () {
+                        return ['' => 'Select a period'] + SubscriptionPeriod::query()
+                            ->orderBy('sequence')
+                            ->pluck('name', 'id')
+                            ->all();
+                    })
+                    ->searchable()
+                    ->allowClear()
+            )
+            ->add(
                 'commit_price',
                 NumberField::class,
                 NumberFieldOption::make()
                     ->label('Commit Price')
                     ->defaultValue(0)
-            )
-            ->add(
-                'payment_interval',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label('Payment Interval')
-                    ->placeholder('e.g., monthly, yearly')
             )
             ->add(
                 'start_at',

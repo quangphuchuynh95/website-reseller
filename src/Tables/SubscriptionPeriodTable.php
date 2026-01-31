@@ -15,19 +15,19 @@ use Botble\Table\HeaderActions\CreateHeaderAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
-use QuangPhuc\WebsiteReseller\Models\PackagePrice;
+use QuangPhuc\WebsiteReseller\Models\SubscriptionPeriod;
 
-class PackagePriceTable extends TableAbstract
+class SubscriptionPeriodTable extends TableAbstract
 {
     public function setup(): void
     {
         $this
-            ->model(PackagePrice::class)
+            ->model(SubscriptionPeriod::class)
             ->addActions([
-                EditAction::make()->route('website-reseller.package-prices.edit'),
-                DeleteAction::make()->route('website-reseller.package-prices.destroy'),
+                EditAction::make()->route('website-reseller.subscription-periods.edit'),
+                DeleteAction::make()->route('website-reseller.subscription-periods.destroy'),
             ])
-            ->addHeaderAction(CreateHeaderAction::make()->route('website-reseller.package-prices.create'));
+            ->addHeaderAction(CreateHeaderAction::make()->route('website-reseller.subscription-periods.create'));
     }
 
     public function query(): Relation|Builder|QueryBuilder
@@ -37,14 +37,11 @@ class PackagePriceTable extends TableAbstract
             ->query()
             ->select([
                 'id',
-                'package_id',
-                'subscription_period_id',
                 'name',
+                'interval_value',
                 'sequence',
-                'price',
                 'created_at',
-            ])
-            ->with(['package:id,name', 'subscriptionPeriod:id,name']);
+            ]);
 
         return $this->applyScopes($query);
     }
@@ -53,25 +50,11 @@ class PackagePriceTable extends TableAbstract
     {
         return [
             IdColumn::make(),
-            Column::make('package_id')
-                ->title('Package')
-                ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $price = $column->getItem();
-                    return $price->package?->name ?? '—';
-                }),
             Column::make('name')
                 ->title(trans('core/base::tables.name'))
                 ->alignStart(),
-            Column::make('subscription_period_id')
-                ->title('Period')
-                ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $price = $column->getItem();
-                    return $price->subscriptionPeriod?->name ?? '—';
-                }),
-            Column::make('price')
-                ->title('Price')
+            Column::make('interval_value')
+                ->title('Interval (ISO 8601)')
                 ->alignStart(),
             Column::make('sequence')
                 ->title('Sequence')
@@ -83,7 +66,7 @@ class PackagePriceTable extends TableAbstract
     public function bulkActions(): array
     {
         return [
-            DeleteBulkAction::make()->permission('website-reseller.package-prices.destroy'),
+            DeleteBulkAction::make()->permission('website-reseller.subscription-periods.destroy'),
         ];
     }
 

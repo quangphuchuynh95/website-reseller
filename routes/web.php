@@ -11,6 +11,7 @@ use QuangPhuc\WebsiteReseller\Http\Controllers\Public\PackagePriceSelectionContr
 use QuangPhuc\WebsiteReseller\Http\Controllers\ThemeController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\SourceCodeController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\SubscriptionController;
+use QuangPhuc\WebsiteReseller\Http\Controllers\SubscriptionPeriodController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\WebsiteController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\Auth\LoginController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\Auth\LogoutController;
@@ -52,7 +53,7 @@ Theme::registerRoutes(function (): void {
         Route::name('website.')->prefix('website')->group(function () {
             // Order routes
             Route::get('order/{theme}/package', PackageSelectionController::class)->name('order.package');
-            Route::get('order/{theme}/{package}/price', PackagePriceSelectionController::class)->name('order.package_price');
+//            Route::get('order/{theme}/{package}/price', PackagePriceSelectionController::class)->name('order.package_price');
 
             Route::middleware(RedirectIfNotCustomer::class)->group(function () {
                 Route::get('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'getCheckout'])->name('order.checkout');
@@ -88,6 +89,11 @@ AdminHelper::registerRoutes(function () {
         // Package Prices
         Route::resource('package-prices', PackagePriceController::class)->parameters([
             'package-prices' => 'packagePrice',
+        ]);
+
+        // Subscription Periods
+        Route::resource('subscription-periods', SubscriptionPeriodController::class)->parameters([
+            'subscription-periods' => 'subscriptionPeriod',
         ]);
 
         // Themes

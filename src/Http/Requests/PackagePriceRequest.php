@@ -11,8 +11,9 @@ class PackagePriceRequest extends Request
         return [
             'package_id' => 'required|exists:wr_packages,id',
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'subscription_period_id' => 'nullable|exists:wr_subscription_periods,id',
             'sequence' => 'nullable|integer|min:0',
-            'payment_interval' => 'nullable|string|max:50',
             'price' => 'nullable|numeric|min:0',
         ];
     }

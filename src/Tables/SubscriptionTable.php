@@ -40,13 +40,13 @@ class SubscriptionTable extends TableAbstract
                 'name',
                 'package_id',
                 'package_price_id',
+                'subscription_period_id',
                 'commit_price',
-                'payment_interval',
                 'start_at',
                 'next_expires_at',
                 'created_at',
             ])
-            ->with(['package:id,name', 'packagePrice:id,name']);
+            ->with(['package:id,name', 'packagePrice:id,name', 'subscriptionPeriod:id,name']);
 
         return $this->applyScopes($query);
     }
@@ -72,11 +72,15 @@ class SubscriptionTable extends TableAbstract
                     $subscription = $column->getItem();
                     return $subscription->packagePrice?->name ?? '—';
                 }),
+            Column::make('subscription_period_id')
+                ->title('Period')
+                ->alignStart()
+                ->renderUsing(function (Column $column) {
+                    $subscription = $column->getItem();
+                    return $subscription->subscriptionPeriod?->name ?? '—';
+                }),
             Column::make('commit_price')
                 ->title('Price')
-                ->alignStart(),
-            Column::make('payment_interval')
-                ->title('Interval')
                 ->alignStart(),
             Column::make('next_expires_at')
                 ->title('Next Expiry')

@@ -85,6 +85,27 @@ return [
         'parent_flag' => 'website-reseller.package-prices.index',
     ],
 
+    // Subscription Periods
+    [
+        'name' => 'Subscription Periods',
+        'flag' => 'website-reseller.subscription-periods.index',
+    ],
+    [
+        'name' => 'Create',
+        'flag' => 'website-reseller.subscription-periods.create',
+        'parent_flag' => 'website-reseller.subscription-periods.index',
+    ],
+    [
+        'name' => 'Edit',
+        'flag' => 'website-reseller.subscription-periods.edit',
+        'parent_flag' => 'website-reseller.subscription-periods.index',
+    ],
+    [
+        'name' => 'Delete',
+        'flag' => 'website-reseller.subscription-periods.destroy',
+        'parent_flag' => 'website-reseller.subscription-periods.index',
+    ],
+
     // Themes
     [
         'name' => 'Themes',
