@@ -9,8 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends BaseController
 {
+
     public function showLoginForm()
     {
+        if (request()->has('redirect') && request()->get('redirect')) {
+            session(['url.intended' => request()->get('redirect')]);
+        } elseif (! session()->has('url.intended') && ! in_array(url()->previous(), [route('wr.front.customer.auth.login'), route('wr.front.customer.auth.register')])) {
+            session(['url.intended' => url()->previous()]);
+        }
         return Theme::scope('website-reseller.auth.login')->render();
     }
 
@@ -22,8 +28,6 @@ class LoginController extends BaseController
         ]);
 
         if (Auth::guard('wr_customer')->attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
-
             return redirect()->intended(route('wr.front.customer.websites'));
         }
 

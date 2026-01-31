@@ -25,12 +25,6 @@ class CheckoutController extends BaseController
             abort(404, 'Payment plugin is not active.');
         }
 
-        // Ensure customer is authenticated
-        if (! auth('wr_customer')->check()) {
-            return redirect()
-                ->route('wr.front.customer.auth.login')
-                ->with('error_msg', __('Please login to continue checkout.'));
-        }
 
         // Generate checkout token and store checkout data
         $token = CheckoutHelper::getCheckoutToken();
@@ -151,13 +145,9 @@ class CheckoutController extends BaseController
         // Create Subscription
         $subscription = $this->createSubscription($package, $price);
 
-        // Create Website
-        $website = $this->createWebsite($customer, $subscription, $theme);
-
         // Store the subscription and website IDs in checkout data
         CheckoutHelper::setCheckoutData([
             'subscription_id' => $subscription->id,
-            'website_id' => $website->id,
         ]);
 
         // Store payment record
