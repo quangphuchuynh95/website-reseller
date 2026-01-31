@@ -13,6 +13,8 @@ class Subscription extends BaseModel
     protected $table = 'wr_subscriptions';
 
     protected $fillable = [
+        'customer_id',
+        'theme_id',
         'package_id',
         'package_price_id',
         'name',
@@ -21,6 +23,7 @@ class Subscription extends BaseModel
         'start_at',
         'next_expires_at',
         'status',
+        'charge_id',
     ];
 
     protected $casts = [
@@ -30,6 +33,16 @@ class Subscription extends BaseModel
         'next_expires_at' => 'datetime',
         'status' => SubscriptionStatusEnum::class,
     ];
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function theme(): BelongsTo
+    {
+        return $this->belongsTo(Theme::class);
+    }
 
     public function package(): BelongsTo
     {

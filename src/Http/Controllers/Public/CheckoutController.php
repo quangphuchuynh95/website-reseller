@@ -143,7 +143,7 @@ class CheckoutController extends BaseController
         }
 
         // Create Subscription
-        $subscription = $this->createSubscription($package, $price);
+        $subscription = $this->createSubscription($customer, $theme, $package, $price, $paymentData['charge_id']);
 
         // Store the subscription and website IDs in checkout data
         CheckoutHelper::setCheckoutData([
@@ -283,21 +283,24 @@ class CheckoutController extends BaseController
             ->with('error_msg', $errorMessage);
     }
 
-    protected function createSubscription(Models\Package $package, Models\PackagePrice $price): Models\Subscription
-    {
-        $now = Carbon::now();
-
-        // Calculate next expiry based on payment interval
-        $nextExpiresAt = $this->calculateNextExpiry($now, $price->payment_interval);
-
+    protected function createSubscription(
+        Models\Customer $customer,
+        Models\Theme $theme,
+        Models\Package $package,
+        Models\PackagePrice $price,
+        ?string $chargeId = null
+    ): Models\Subscription {
         return Models\Subscription::create([
+            'customer_id' => $customer->id,
+            'theme_id' => $theme->id,
             'package_id' => $package->id,
             'package_price_id' => $price->id,
             'name' => $package->name . ' - ' . $price->name,
             'commit_price' => $price->price,
             'payment_interval' => $price->payment_interval,
-            'start_at' => $now,
-            'next_expires_at' => $nextExpiresAt,
+            'start_at' => null,
+            'next_expires_at' => null,
+            'charge_id' => $chargeId,
         ]);
     }
 
@@ -314,17 +317,5 @@ class CheckoutController extends BaseController
             'domain' => null, // Will be set later by customer
             'status' => 'pending', // Initial status
         ]);
-    }
-
-    protected function calculateNextExpiry(Carbon $startDate, ?string $interval): Carbon
-    {
-        return match ($interval) {
-            'daily' => $startDate->copy()->addDay(),
-            'weekly' => $startDate->copy()->addWeek(),
-            'monthly' => $startDate->copy()->addMonth(),
-            'quarterly' => $startDate->copy()->addMonths(3),
-            'yearly', 'annually' => $startDate->copy()->addYear(),
-            default => $startDate->copy()->addMonth(),
-        };
     }
 }

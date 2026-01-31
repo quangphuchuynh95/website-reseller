@@ -14,6 +14,7 @@ use QuangPhuc\WebsiteReseller\Models\Category;
 use QuangPhuc\WebsiteReseller\Services\CaddyService;
 use QuangPhuc\WebsiteReseller\Services\PublicViewService;
 use QuangPhuc\WebsiteReseller\Services\SourceCodeService;
+use QuangPhuc\WebsiteReseller\Services\SubscriptionService;
 use QuangPhuc\WebsiteReseller\Services\WebsiteService;
 use QuangPhuc\WebsiteReseller\Supports\CheckoutHelper;
 
@@ -75,7 +76,9 @@ class HookServiceProvider extends ServiceProvider
 
     public function handlePaymentUpdated($request, Payment $payment): void
     {
+        $subscriptionService = $this->app->make(SubscriptionService::class);
         if ($payment->status === PaymentStatusEnum::COMPLETED) {
+            $subscriptionService->activateSubscription($payment->charge_id);
             // Payment completed - can trigger additional actions here
             // e.g., activate the subscription, send confirmation emails
         }

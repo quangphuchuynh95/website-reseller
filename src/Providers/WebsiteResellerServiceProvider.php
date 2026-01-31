@@ -20,6 +20,7 @@ class WebsiteResellerServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(HookServiceProvider::class);
+        $this->app->register(EventServiceProvider::class);
 
         $this->app->singleton(SourceCodeService::class, function () {
             return new SourceCodeService(
