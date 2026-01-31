@@ -61,6 +61,7 @@ Theme::registerRoutes(function (): void {
                 // Checkout callback routes
                 Route::get('order/checkout/success/{token?}', [CheckoutController::class, 'getCheckoutSuccess'])->name('order.checkout.success');
                 Route::get('order/checkout/cancel/{token?}', [CheckoutController::class, 'getCheckoutCancel'])->name('order.checkout.cancel');
+                Route::get('order/checkout/bank-transfer/{token?}', [CheckoutController::class, 'getBankTransferInfo'])->name('order.checkout.bank-transfer');
             });
         });
     });

@@ -162,7 +162,14 @@ class CheckoutController extends BaseController
             'status' => PaymentStatusEnum::PENDING,
         ]);
 
-        // Redirect to success page
+        // Redirect based on payment method
+        if ($paymentMethod === PaymentMethodEnum::BANK_TRANSFER) {
+            return $this->httpResponse()
+                ->setNextUrl(route('wr.front.website.order.checkout.bank-transfer', $token))
+                ->setMessage(__('Order placed! Please complete the bank transfer.'));
+        }
+
+        // Default: redirect to success page
         return $this->httpResponse()
             ->setNextUrl(PaymentHelper::getRedirectURL($token))
             ->setMessage(__('Order placed successfully!'));
@@ -211,6 +218,35 @@ class CheckoutController extends BaseController
         return Theme::scope('website-reseller.order.success', [
             'subscription' => $subscription,
             'website' => $website,
+            'checkoutData' => $checkoutData,
+        ])->render();
+    }
+
+    public function getBankTransferInfo(Request $request, ?string $token = null)
+    {
+        $checkoutData = CheckoutHelper::getCheckoutData($token);
+
+        if (empty($checkoutData)) {
+            return redirect()
+                ->route('wr.front.public.theme.index')
+                ->with('error_msg', __('Invalid checkout session.'));
+        }
+
+        $subscription = null;
+        if (! empty($checkoutData['subscription_id'])) {
+            $subscription = Models\Subscription::find($checkoutData['subscription_id']);
+        }
+
+        // Get bank info from payment settings
+        $bankInfo = get_payment_setting('payment_bank_transfer_description');
+
+        // Clear checkout session
+        CheckoutHelper::clearCheckoutSession();
+
+        return Theme::scope('website-reseller.order.bank-transfer', [
+            'subscription' => $subscription,
+            'bankInfo' => $bankInfo,
+            'amount' => $checkoutData['amount'] ?? 0,
             'checkoutData' => $checkoutData,
         ])->render();
     }
