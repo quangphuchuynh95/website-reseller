@@ -72,7 +72,7 @@ class CheckoutController extends BaseController
         $amount = $price->price;
         $currency = get_application_currency()->title ?? 'USD';
         $customer = auth('wr_customer')->user();
-        $domain = $request->input('domain');
+        $domain = strtolower($request->input('subdomain')) . '.' . $request->input('base_domain');
 
         // Store checkout data
         CheckoutHelper::setCheckoutData([
