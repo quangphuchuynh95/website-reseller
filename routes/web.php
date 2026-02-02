@@ -20,7 +20,7 @@ use QuangPhuc\WebsiteReseller\Http\Controllers\Public\CheckoutController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\PackageSelectionController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\ThemesIndexController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\ThemePreviewController;
-use QuangPhuc\WebsiteReseller\Http\Controllers\Public\UserWebsiteController;
+use QuangPhuc\WebsiteReseller\Http\Controllers\Public\User\UserWebsiteController;
 use QuangPhuc\WebsiteReseller\Http\Middleware\RedirectIfNotCustomer;
 
 

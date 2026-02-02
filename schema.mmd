@@ -1,82 +1,158 @@
 erDiagram
-    direction BT
-
-    Package {
-        int id PK
-        string name
-        string description
-        string content
+    wr_categories {
+        varchar name
+        varchar image
+        timestamp created_at
+        timestamp updated_at
+        bigint id
+    }
+    wr_customers {
+        varchar name
+        varchar email
+        varchar password
+        timestamp created_at
+        timestamp updated_at
+        bigint id
+    }
+    wr_package_prices {
+        bigint package_id
+        bigint subscription_period_id
+        varchar name
+        int sequence
+        varchar payment_interval
+        decimal price
+        timestamp created_at
+        timestamp updated_at
+        bigint id
+    }
+    wr_packages {
+        bigint id PK
+        varchar name
+        varchar description
+        longtext content
         int sequence
         json features
+        timestamp created_at
+        timestamp updated_at
     }
-
-    PackagePrice {
-        int id PK
-        string name
-        int sequence
-        string payment_interval
-        float price
-    }
-    PackagePrice zero or more to only one Package : package_id-id
-
-
-    Subscription {
-        int id PK
-        string name
-        float commit_price
-        string payment_interval
-        timestamp start_at
-        timestamp next_expires_at
-    }
-    Subscription zero or more to only one Package : package_id-id
-    Subscription zero or more to only one PackagePrice : package_price_id-id
-
-    SubscriptionPayment {
-        int id PK
-    }
-    SubscriptionPayment zero or more to only one Payment : payment_id-id
-    SubscriptionPayment zero or more to only one Subscription : subscription_id-id
-
-
-    Category {
-        int id PK
-        string name
-        string image
-    }
-    Category zero or more to zero or more Theme : theme_category
-
-    Theme {
-        int id PK
-        string name
-        string preview_url
-        string image
-    }
-    Theme zero or more to only one Package : theme_package
-    Theme zero or more to only one SourceCode : source_code_id-id
-
-    SourceCode {
-        int id PK
-        string name
-        string slug "unique"
-        string slug "unique"
+    wr_source_codes {
+        bigint id PK
+        varchar name
+        varchar slug
         text caddy_template
         text setup_command
+        timestamp created_at
+        timestamp updated_at
+    }
+    wr_subscription_periods {
+        bigint id PK
+        varchar name
+        varchar interval_value "ISO 8601 duration format: P1D, P1W, P1M, P3M, P1Y"
+        int sequence
+        timestamp created_at
+        timestamp updated_at
+    }
+    wr_subscriptions {
+        bigint id PK
+        bigint customer_id
+        bigint theme_id
+        bigint package_id
+        bigint package_price_id
+        bigint subscription_period_id
+        varchar name
+        decimal commit_price
+        varchar payment_interval
+        timestamp start_at
+        timestamp next_expires_at
+        varchar status
+        varchar charge_id
+        varchar domain
+        timestamp created_at
+        timestamp updated_at
+    }
+    wr_theme_category {
+        timestamp created_at
+        timestamp updated_at
+        bigint theme_id
+        bigint category_id
+    }
+    wr_theme_package {
+        timestamp created_at
+        timestamp updated_at
+        bigint theme_id
+        bigint package_id
+    }
+    wr_themes {
+        bigint id PK
+        varchar name
+        varchar image
+        varchar preview_url
+        varchar database_file
+        bigint source_code_id "FK"
+        timestamp created_at
+        timestamp updated_at
+    }
+    wr_websites {
+        bigint id PK
+        bigint customer_id "FK"
+        bigint subscription_id "FK"
+        bigint theme_id "FK"
+        bigint source_code_id "FK"
+        varchar domain
+        varchar status
+        timestamp created_at
+        timestamp updated_at
     }
 
-    Customer {
-        int id PK
-        string name
-        string email "unique"
-        string password
-    }
-    Customer only one to zero or more Website : websites
+    %% Relationships
 
-    Website {
-        int id PK
-        string name
-        string domain "unique"
-        string database_name
-    }
-    Website zero or more to only one Subscription : subscription_id-id
-    Website zero or more to only one Theme : theme_id-id
-    Website zero or more to only one SourceCode : source_code_id-id
+    %% Customer relationships
+    wr_customers ||--o{ wr_subscriptions : "subscriptions"
+    wr_customers ||--o{ wr_websites : "websites"
+
+    %% Package relationships
+    wr_packages ||--o{ wr_package_prices : "packagePrices"
+    wr_packages ||--o{ wr_subscriptions : "subscriptions"
+
+    %% SubscriptionPeriod relationships
+    wr_subscription_periods ||--o{ wr_package_prices : "packagePrices"
+    wr_subscription_periods ||--o{ wr_subscriptions : "subscriptions"
+
+    %% PackagePrice relationships
+    wr_package_prices ||--o{ wr_subscriptions : "subscriptions"
+    wr_package_prices }o--|| wr_packages : "package"
+    wr_package_prices }o--|| wr_subscription_periods : "subscriptionPeriod"
+
+    %% Subscription relationships
+    wr_subscriptions ||--o{ wr_websites : "websites"
+    wr_subscriptions }o--|| wr_customers : "customer"
+    wr_subscriptions }o--|| wr_themes : "theme"
+    wr_subscriptions }o--|| wr_packages : "package"
+    wr_subscriptions }o--|| wr_package_prices : "packagePrice"
+    wr_subscriptions }o--|| wr_subscription_periods : "subscriptionPeriod"
+
+    %% SourceCode relationships
+    wr_source_codes ||--o{ wr_themes : "themes"
+    wr_source_codes ||--o{ wr_websites : "websites"
+
+    %% Theme relationships
+    wr_themes }o--|| wr_source_codes : "sourceCode"
+    wr_themes ||--o{ wr_websites : "websites"
+    wr_themes ||--o{ wr_subscriptions : "subscriptions"
+
+    %% Website relationships
+    wr_websites }o--|| wr_customers : "customer"
+    wr_websites }o--|| wr_subscriptions : "subscription"
+    wr_websites }o--|| wr_themes : "theme"
+    wr_websites }o--|| wr_source_codes : "sourceCode"
+
+    %% Many-to-Many relationships (through pivot tables)
+    wr_themes ||--o{ wr_theme_package : "packages"
+    wr_packages ||--o{ wr_theme_package : "themes"
+    wr_theme_package }o--|| wr_themes : "theme"
+    wr_theme_package }o--|| wr_packages : "package"
+
+    wr_themes ||--o{ wr_theme_category : "categories"
+    wr_categories ||--o{ wr_theme_category : "themes"
+    wr_theme_category }o--|| wr_themes : "theme"
+    wr_theme_category }o--|| wr_categories : "category"
