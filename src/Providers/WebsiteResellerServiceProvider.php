@@ -43,7 +43,7 @@ class WebsiteResellerServiceProvider extends ServiceProvider
         $this
             ->setNamespace('plugins/website-reseller')
             ->loadHelpers()
-            ->loadAndPublishConfigurations(['permissions', 'caddy', 'source-code', 'auth', "database"])
+            ->loadAndPublishConfigurations(['permissions', "website", 'caddy', 'source-code', 'auth', "database"])
             ->loadAndPublishTranslations()
             ->loadRoutes()
             ->loadAndPublishViews()

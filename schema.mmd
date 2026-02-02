@@ -98,7 +98,7 @@ erDiagram
         bigint subscription_id "FK"
         bigint theme_id "FK"
         bigint source_code_id "FK"
-        varchar domain
+        varchar domain "unique"
         varchar status
         timestamp created_at
         timestamp updated_at
