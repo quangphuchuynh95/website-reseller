@@ -77,13 +77,14 @@ class HookServiceProvider extends ServiceProvider
     public function handlePaymentUpdated($request, Payment $payment): void
     {
         $subscriptionService = $this->app->make(SubscriptionService::class);
-        if ($payment->status === PaymentStatusEnum::COMPLETED) {
+        // never use ===, use == instead
+        if ($payment->status == PaymentStatusEnum::COMPLETED) {
             $subscriptionService->activateSubscription($payment->charge_id);
             // Payment completed - can trigger additional actions here
             // e.g., activate the subscription, send confirmation emails
         }
 
-        if ($payment->status === PaymentStatusEnum::FAILED) {
+        if ($payment->status == PaymentStatusEnum::FAILED) {
             // Payment failed - handle failure
         }
     }

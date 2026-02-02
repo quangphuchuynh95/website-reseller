@@ -36,7 +36,7 @@ class WebsiteService
 
     protected function createDatabase(string $databaseName): void
     {
-        Schema::connection('websites')->createDatabase($databaseName);
+        Schema::connection('children_website')->createDatabase($databaseName);
 
         Log::info("Database created: {$databaseName}");
     }
@@ -51,10 +51,10 @@ class WebsiteService
 
         $filePath = Storage::path($databaseFile);
 
-        $dbHost = config('database.connections.websites.host');
-        $dbPort = config('database.connections.websites.port');
-        $dbUser = config('database.connections.websites.username');
-        $dbPassword = config('database.connections.websites.password');
+        $dbHost = config('database.connections.children_website.host');
+        $dbPort = config('database.connections.children_website.port');
+        $dbUser = config('database.connections.children_website.username');
+        $dbPassword = config('database.connections.children_website.password');
 
         Process::run(sprintf(
             'mysql -h %s -P %s -u %s -p%s %s < %s',
@@ -81,11 +81,11 @@ class WebsiteService
             ->env([
                 'DOMAIN' => $website->domain,
                 'SLUGIFIED_DOMAIN' => $this->slugifyDomain($website->domain),
-                'DB_HOST' => config('database.connections.websites.host'),
-                'DB_PORT' => config('database.connections.websites.port'),
+                'DB_HOST' => config('database.connections.children_website.host'),
+                'DB_PORT' => config('database.connections.children_website.port'),
                 'DB_DATABASE' => $databaseName,
-                'DB_USERNAME' => config('database.connections.websites.username'),
-                'DB_PASSWORD' => config('database.connections.websites.password'),
+                'DB_USERNAME' => config('database.connections.children_website.username'),
+                'DB_PASSWORD' => config('database.connections.children_website.password'),
             ])
             ->run()
             ->throw();

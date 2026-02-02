@@ -37,15 +37,20 @@ class WebsiteTable extends TableAbstract
             ->getModel()
             ->query()
             ->select([
-                'id',
-                'domain',
-                'subscription_id',
-                'theme_id',
-                'source_code_id',
-                'status',
-                'created_at',
+                'wr_websites.id',
+                'wr_websites.domain',
+                'wr_websites.subscription_id',
+                'wr_websites.theme_id',
+                'wr_websites.source_code_id',
+                'wr_websites.status',
+                'wr_websites.created_at',
+                'subscriptions.name as subscription_name',
+                'themes.name as theme_name',
+                'source_codes.name as source_code_name',
             ])
-            ->with(['subscription:id,name', 'theme:id,name', 'sourceCode:id,name']);
+            ->leftJoin('wr_subscriptions as subscriptions', 'wr_websites.subscription_id', '=', 'subscriptions.id')
+            ->leftJoin('wr_themes as themes', 'wr_websites.theme_id', '=', 'themes.id')
+            ->leftJoin('wr_source_codes as source_codes', 'wr_websites.source_code_id', '=', 'source_codes.id');
 
         return $this->applyScopes($query);
     }
@@ -57,27 +62,30 @@ class WebsiteTable extends TableAbstract
             Column::make('domain')
                 ->title('Domain')
                 ->alignStart(),
-            Column::make('subscription_id')
+            Column::make('subscription_name')
                 ->title('Subscription')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $website = $column->getItem();
-                    return $website->subscription?->name ?? '—';
-                }),
-            Column::make('theme_id')
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->subscription_name,
+                    $column->getItem()->subscription_id,
+                    'website-reseller.subscriptions.edit'
+                )),
+            Column::make('theme_name')
                 ->title('Theme')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $website = $column->getItem();
-                    return $website->theme?->name ?? '—';
-                }),
-            Column::make('source_code_id')
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->theme_name,
+                    $column->getItem()->theme_id,
+                    'website-reseller.themes.edit'
+                )),
+            Column::make('source_code_name')
                 ->title('Source Code')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $website = $column->getItem();
-                    return $website->sourceCode?->name ?? '—';
-                }),
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->source_code_name,
+                    $column->getItem()->source_code_id,
+                    'website-reseller.source-codes.edit'
+                )),
             CreatedAtColumn::make(),
             StatusColumn::make(),
         ];
@@ -96,5 +104,16 @@ class WebsiteTable extends TableAbstract
             StatusBulkChange::make(),
             CreatedAtBulkChange::make(),
         ];
+    }
+
+    protected function renderLink(?string $name, ?int $id, string $route): string
+    {
+        if (! $name || ! $id) {
+            return '—';
+        }
+
+        $url = route($route, $id);
+
+        return sprintf('<a href="%s">%s</a>', $url, e($name));
     }
 }

@@ -36,13 +36,15 @@ class ThemeTable extends TableAbstract
             ->getModel()
             ->query()
             ->select([
-                'id',
-                'name',
-                'preview_url',
-                'source_code_id',
-                'created_at',
+                'wr_themes.id',
+                'wr_themes.name',
+                'wr_themes.source_code_id',
+                'wr_themes.preview_url',
+                'wr_themes.created_at',
+                'source_codes.name as source_code_name',
             ])
-            ->with(['packages:id,name', 'sourceCode:id,name']);
+            ->leftJoin('wr_source_codes as source_codes', 'wr_themes.source_code_id', '=', 'source_codes.id')
+            ->with(['packages:id,name']);
 
         return $this->applyScopes($query);
     }
@@ -57,18 +59,26 @@ class ThemeTable extends TableAbstract
             Column::make('packages')
                 ->title('Packages')
                 ->alignStart()
+                ->orderable(false)
+                ->searchable(false)
                 ->renderUsing(function (Column $column) {
                     $theme = $column->getItem();
-                    $packages = $theme->packages->pluck('name')->toArray();
-                    return $packages ? implode(', ', $packages) : '—';
+                    $links = $theme->packages->map(fn ($package) => sprintf(
+                        '<a href="%s">%s</a>',
+                        route('website-reseller.packages.edit', $package->id),
+                        e($package->name)
+                    ))->toArray();
+
+                    return $links ? implode(', ', $links) : '—';
                 }),
-            Column::make('source_code_id')
+            Column::make('source_code_name')
                 ->title('Source Code')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $theme = $column->getItem();
-                    return $theme->sourceCode?->name ?? '—';
-                }),
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->source_code_name,
+                    $column->getItem()->source_code_id,
+                    'website-reseller.source-codes.edit'
+                )),
             Column::make('preview_url')
                 ->title('Preview URL')
                 ->alignStart()
@@ -96,5 +106,16 @@ class ThemeTable extends TableAbstract
             NameBulkChange::make(),
             CreatedAtBulkChange::make(),
         ];
+    }
+
+    protected function renderLink(?string $name, ?int $id, string $route): string
+    {
+        if (! $name || ! $id) {
+            return '—';
+        }
+
+        $url = route($route, $id);
+
+        return sprintf('<a href="%s">%s</a>', $url, e($name));
     }
 }

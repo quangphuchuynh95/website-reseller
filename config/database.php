@@ -7,7 +7,7 @@ return [
             'url' => env('DB_WEBSITE_URL'),
             'host' => env('DB_WEBSITE_HOST', '127.0.0.1'),
             'port' => env('DB_WEBSITE_PORT', '3306'),
-//            'database' => env('DB_WEBSITE_DATABASE', 'laravel'),
+            'database' => env('DB_WEBSITE_DATABASE', 'website_admin'),
             'username' => env('DB_WEBSITE_USERNAME', 'root'),
             'password' => env('DB_WEBSITE_PASSWORD', ''),
             'unix_socket' => env('DB_WEBSITE_SOCKET', ''),

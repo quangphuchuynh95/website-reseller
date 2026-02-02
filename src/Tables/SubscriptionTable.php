@@ -36,17 +36,22 @@ class SubscriptionTable extends TableAbstract
             ->getModel()
             ->query()
             ->select([
-                'id',
-                'name',
-                'package_id',
-                'package_price_id',
-                'subscription_period_id',
-                'commit_price',
-                'start_at',
-                'next_expires_at',
-                'created_at',
+                'wr_subscriptions.id',
+                'wr_subscriptions.name',
+                'wr_subscriptions.package_id',
+                'wr_subscriptions.package_price_id',
+                'wr_subscriptions.subscription_period_id',
+                'wr_subscriptions.commit_price',
+                'wr_subscriptions.start_at',
+                'wr_subscriptions.next_expires_at',
+                'wr_subscriptions.created_at',
+                'packages.name as package_name',
+                'package_prices.name as package_price_name',
+                'subscription_periods.name as subscription_period_name',
             ])
-            ->with(['package:id,name', 'packagePrice:id,name', 'subscriptionPeriod:id,name']);
+            ->leftJoin('wr_packages as packages', 'wr_subscriptions.package_id', '=', 'packages.id')
+            ->leftJoin('wr_package_prices as package_prices', 'wr_subscriptions.package_price_id', '=', 'package_prices.id')
+            ->leftJoin('wr_subscription_periods as subscription_periods', 'wr_subscriptions.subscription_period_id', '=', 'subscription_periods.id');
 
         return $this->applyScopes($query);
     }
@@ -58,27 +63,30 @@ class SubscriptionTable extends TableAbstract
             Column::make('name')
                 ->title(trans('core/base::tables.name'))
                 ->alignStart(),
-            Column::make('package_id')
+            Column::make('package_name')
                 ->title('Package')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $subscription = $column->getItem();
-                    return $subscription->package?->name ?? '—';
-                }),
-            Column::make('package_price_id')
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->package_name,
+                    $column->getItem()->package_id,
+                    'website-reseller.packages.edit'
+                )),
+            Column::make('package_price_name')
                 ->title('Package Price')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $subscription = $column->getItem();
-                    return $subscription->packagePrice?->name ?? '—';
-                }),
-            Column::make('subscription_period_id')
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->package_price_name,
+                    $column->getItem()->package_price_id,
+                    'website-reseller.package-prices.edit'
+                )),
+            Column::make('subscription_period_name')
                 ->title('Period')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $subscription = $column->getItem();
-                    return $subscription->subscriptionPeriod?->name ?? '—';
-                }),
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->subscription_period_name,
+                    $column->getItem()->subscription_period_id,
+                    'website-reseller.subscription-periods.edit'
+                )),
             Column::make('commit_price')
                 ->title('Price')
                 ->alignStart(),
@@ -106,5 +114,16 @@ class SubscriptionTable extends TableAbstract
             NameBulkChange::make(),
             CreatedAtBulkChange::make(),
         ];
+    }
+
+    protected function renderLink(?string $name, ?int $id, string $route): string
+    {
+        if (! $name || ! $id) {
+            return '—';
+        }
+
+        $url = route($route, $id);
+
+        return sprintf('<a href="%s">%s</a>', $url, e($name));
     }
 }

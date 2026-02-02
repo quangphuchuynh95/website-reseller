@@ -43,16 +43,15 @@ class WebsiteResellerServiceProvider extends ServiceProvider
         $this
             ->setNamespace('plugins/website-reseller')
             ->loadHelpers()
-            ->loadAndPublishConfigurations(['permissions', 'caddy', 'source-code', 'auth'])
+            ->loadAndPublishConfigurations(['permissions', 'caddy', 'source-code', 'auth', "database"])
             ->loadAndPublishTranslations()
             ->loadRoutes()
             ->loadAndPublishViews()
             ->loadMigrations();
 
-        $this->mergeConfigFrom($this->getConfigFilePath("database"), "database");
-
         // Merge auth config
         config([
+            'database.connections.children_website' => config('plugins.website-reseller.database.connections.children_website'),
             'auth.guards.wr_customer' => config('plugins.website-reseller.auth.guards.wr_customer'),
             'auth.providers.wr_customers' => config('plugins.website-reseller.auth.providers.wr_customers'),
             'auth.passwords.wr_customers' => config('plugins.website-reseller.auth.passwords.wr_customers'),

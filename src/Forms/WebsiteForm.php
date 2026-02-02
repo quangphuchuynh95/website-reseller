@@ -36,8 +36,8 @@ class WebsiteForm extends FormAbstract
                     ->label('Subscription')
                     ->choices(function () {
                         return ['' => 'Select a subscription'] + Subscription::query()
-                            ->pluck('name', 'id')
-                            ->all();
+                                ->pluck('name', 'id')
+                                ->all();
                     })
                     ->searchable()
                     ->allowClear()
@@ -49,8 +49,8 @@ class WebsiteForm extends FormAbstract
                     ->label('Theme')
                     ->choices(function () {
                         return ['' => 'Select a theme'] + Theme::query()
-                            ->pluck('name', 'id')
-                            ->all();
+                                ->pluck('name', 'id')
+                                ->all();
                     })
                     ->searchable()
                     ->allowClear()
@@ -62,12 +62,23 @@ class WebsiteForm extends FormAbstract
                     ->label('Source Code')
                     ->choices(function () {
                         return ['' => 'Select source code'] + SourceCode::query()
-                            ->pluck('name', 'id')
-                            ->all();
+                                ->pluck('name', 'id')
+                                ->all();
                     })
                     ->searchable()
                     ->allowClear()
             )
-            ->add('status', SelectField::class, StatusFieldOption::make());
+            ->add('status',
+                SelectField::class,
+                SelectFieldOption::make()
+                    ->label('Status')
+                    ->choices(function () {
+                        return [
+                            '' => 'Select status',
+                            'active' => 'Active',
+                            'inactive' => 'Inactive',
+                        ];
+                    }),
+            );
     }
 }

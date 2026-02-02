@@ -36,15 +36,18 @@ class PackagePriceTable extends TableAbstract
             ->getModel()
             ->query()
             ->select([
-                'id',
-                'package_id',
-                'subscription_period_id',
-                'name',
-                'sequence',
-                'price',
-                'created_at',
+                'wr_package_prices.id',
+                'wr_package_prices.name',
+                'wr_package_prices.package_id',
+                'wr_package_prices.subscription_period_id',
+                'wr_package_prices.sequence',
+                'wr_package_prices.price',
+                'wr_package_prices.created_at',
+                'packages.name as package_name',
+                'subscription_periods.name as subscription_period_name',
             ])
-            ->with(['package:id,name', 'subscriptionPeriod:id,name']);
+            ->leftJoin('wr_packages as packages', 'wr_package_prices.package_id', '=', 'packages.id')
+            ->leftJoin('wr_subscription_periods as subscription_periods', 'wr_package_prices.subscription_period_id', '=', 'subscription_periods.id');
 
         return $this->applyScopes($query);
     }
@@ -53,23 +56,25 @@ class PackagePriceTable extends TableAbstract
     {
         return [
             IdColumn::make(),
-            Column::make('package_id')
+            Column::make('package_name')
                 ->title('Package')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $price = $column->getItem();
-                    return $price->package?->name ?? '—';
-                }),
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->package_name,
+                    $column->getItem()->package_id,
+                    'website-reseller.packages.edit'
+                )),
             Column::make('name')
                 ->title(trans('core/base::tables.name'))
                 ->alignStart(),
-            Column::make('subscription_period_id')
+            Column::make('subscription_period_name')
                 ->title('Period')
                 ->alignStart()
-                ->renderUsing(function (Column $column) {
-                    $price = $column->getItem();
-                    return $price->subscriptionPeriod?->name ?? '—';
-                }),
+                ->renderUsing(fn (Column $column) => $this->renderLink(
+                    $column->getItem()->subscription_period_name,
+                    $column->getItem()->subscription_period_id,
+                    'website-reseller.subscription-periods.edit'
+                )),
             Column::make('price')
                 ->title('Price')
                 ->alignStart(),
@@ -93,5 +98,16 @@ class PackagePriceTable extends TableAbstract
             NameBulkChange::make(),
             CreatedAtBulkChange::make(),
         ];
+    }
+
+    protected function renderLink(?string $name, ?int $id, string $route): string
+    {
+        if (! $name || ! $id) {
+            return '—';
+        }
+
+        $url = route($route, $id);
+
+        return sprintf('<a href="%s">%s</a>', $url, e($name));
     }
 }

@@ -11,9 +11,11 @@ use Botble\Payment\Services\Gateways\BankTransferPaymentService;
 use Botble\Payment\Services\Gateways\CodPaymentService;
 use Botble\Payment\Supports\PaymentHelper;
 use Botble\Theme\Facades\Theme;
+use FriendsOfBotble\VietnamBankQr\VietQR;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use QuangPhuc\WebsiteReseller\Models;
 use QuangPhuc\WebsiteReseller\Supports\CheckoutHelper;
 
@@ -184,8 +186,7 @@ class CheckoutController extends BaseController
         $checkoutData = CheckoutHelper::getCheckoutData($token);
 
         if (empty($checkoutData)) {
-            return redirect()
-                ->route('wr.front.public.theme.index')
+            return redirect('/')
                 ->with('error_msg', __('Invalid checkout session.'));
         }
 
@@ -231,18 +232,33 @@ class CheckoutController extends BaseController
         $checkoutData = CheckoutHelper::getCheckoutData($token);
 
         if (empty($checkoutData)) {
-            return redirect()
-                ->route('wr.front.public.theme.index')
+            return redirect('/')
                 ->with('error_msg', __('Invalid checkout session.'));
         }
-
         $subscription = null;
         if (! empty($checkoutData['subscription_id'])) {
             $subscription = Models\Subscription::find($checkoutData['subscription_id']);
         }
 
-        // Get bank info from payment settings
-        $bankInfo = get_payment_setting('payment_bank_transfer_description');
+
+        if (is_plugin_active('fob-vietnam-bank-qr')) {
+            $orderCode = Str::padLeft($subscription->id, 5, '0');
+            $qrCode = view(
+                'plugins/fob-vietnam-bank-qr::bank-info',
+                [
+                    'orderAmount' => $checkoutData['amount'],
+                    'imageUrl' => VietQR::getImageUrl($checkoutData['amount'], $orderCode),
+                    'bank' => VietQR::getBankInfo(),
+                    'bankTransferDescription' => VietQR::getTransferDescription($orderCode),
+                    'currentCurrency' => 'VND',
+                ]
+            )->render();
+        } else {
+            $qrCode = null;
+        }
+
+
+        $bankInfo = get_payment_setting('description', PaymentMethodEnum::BANK_TRANSFER);
 
         // Clear checkout session
         CheckoutHelper::clearCheckoutSession();
@@ -252,6 +268,7 @@ class CheckoutController extends BaseController
             'bankInfo' => $bankInfo,
             'amount' => $checkoutData['amount'] ?? 0,
             'checkoutData' => $checkoutData,
+            'qrCode' => $qrCode,
         ])->render();
     }
 
@@ -282,8 +299,7 @@ class CheckoutController extends BaseController
         // Clear checkout session
         CheckoutHelper::clearCheckoutSession();
 
-        return redirect()
-            ->route('wr.front.public.theme.index')
+        return redirect('/')
             ->with('error_msg', $errorMessage);
     }
 
