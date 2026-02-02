@@ -6,6 +6,7 @@ use Botble\Base\Forms\FieldOptions\DatePickerFieldOption;
 use Botble\Base\Forms\FieldOptions\NameFieldOption;
 use Botble\Base\Forms\FieldOptions\NumberFieldOption;
 use Botble\Base\Forms\FieldOptions\SelectFieldOption;
+use Botble\Base\Forms\FieldOptions\TextFieldOption;
 use Botble\Base\Forms\Fields\DatePickerField;
 use Botble\Base\Forms\Fields\NumberField;
 use Botble\Base\Forms\Fields\SelectField;
@@ -25,6 +26,13 @@ class SubscriptionForm extends FormAbstract
             ->model(Subscription::class)
             ->setValidatorClass(SubscriptionRequest::class)
             ->add('name', TextField::class, NameFieldOption::make()->required())
+            ->add(
+                'domain',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label('Domain')
+                    ->placeholder('example.com')
+            )
             ->add(
                 'package_id',
                 SelectField::class,

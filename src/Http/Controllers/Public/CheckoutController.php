@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use QuangPhuc\WebsiteReseller\Http\Requests\Public\PostCheckoutRequest;
 use QuangPhuc\WebsiteReseller\Models;
 use QuangPhuc\WebsiteReseller\Supports\CheckoutHelper;
 
@@ -51,7 +52,7 @@ class CheckoutController extends BaseController
         ])->render();
     }
 
-    public function postCheckout(Request $request, Models\Theme $theme, Models\Package $package, Models\PackagePrice $price)
+    public function postCheckout(PostCheckoutRequest $request, Models\Theme $theme, Models\Package $package, Models\PackagePrice $price)
     {
         if (! is_plugin_active('payment')) {
             return $this->httpResponse()
@@ -71,13 +72,6 @@ class CheckoutController extends BaseController
         $amount = $price->price;
         $currency = get_application_currency()->title ?? 'USD';
         $customer = auth('wr_customer')->user();
-
-        // Validate payment method and domain
-        $request->validate([
-            'payment_method' => 'required|string',
-            'domain' => 'required|string|max:255',
-        ]);
-
         $domain = $request->input('domain');
 
         // Store checkout data
