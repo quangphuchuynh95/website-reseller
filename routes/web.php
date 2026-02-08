@@ -20,6 +20,7 @@ use QuangPhuc\WebsiteReseller\Http\Controllers\Public\CheckoutController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\PackageSelectionController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\ThemesIndexController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\ThemePreviewController;
+use QuangPhuc\WebsiteReseller\Http\Controllers\Public\User\UserSubscriptionController;
 use QuangPhuc\WebsiteReseller\Http\Controllers\Public\User\UserWebsiteController;
 use QuangPhuc\WebsiteReseller\Http\Middleware\RedirectIfNotCustomer;
 
@@ -39,6 +40,9 @@ Theme::registerRoutes(function (): void {
             // User routes (protected)
             Route::middleware(RedirectIfNotCustomer::class)->group(function () {
                 Route::get('websites', UserWebsiteController::class)->name('websites');
+                Route::name('subscription.')->prefix('subscription')->group(function () {
+                    Route::get('{subscription}/payment', [UserSubscriptionController::class, 'showPaymentInfo'])->name('payment');
+                });
             });
         });
 
@@ -56,13 +60,18 @@ Theme::registerRoutes(function (): void {
 //            Route::get('order/{theme}/{package}/price', PackagePriceSelectionController::class)->name('order.package_price');
 
             Route::middleware(RedirectIfNotCustomer::class)->group(function () {
-                Route::get('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'getCheckout'])->name('order.checkout');
-                Route::post('order/{theme}/{package}/{price}/checkout', [CheckoutController::class, 'postCheckout'])->name('order.checkout.post');
+                Route::get('order/{theme}/{package}/{price}/checkout',
+                    [CheckoutController::class, 'getCheckout'])->name('order.checkout');
+                Route::post('order/{theme}/{package}/{price}/checkout',
+                    [CheckoutController::class, 'postCheckout'])->name('order.checkout.post');
 
                 // Checkout callback routes
-                Route::get('order/checkout/success/{token?}', [CheckoutController::class, 'getCheckoutSuccess'])->name('order.checkout.success');
-                Route::get('order/checkout/cancel/{token?}', [CheckoutController::class, 'getCheckoutCancel'])->name('order.checkout.cancel');
-                Route::get('order/checkout/bank-transfer/{token?}', [CheckoutController::class, 'getBankTransferInfo'])->name('order.checkout.bank-transfer');
+                Route::get('order/checkout/success/{token?}',
+                    [CheckoutController::class, 'getCheckoutSuccess'])->name('order.checkout.success');
+                Route::get('order/checkout/cancel/{token?}',
+                    [CheckoutController::class, 'getCheckoutCancel'])->name('order.checkout.cancel');
+                Route::get('order/checkout/bank-transfer/{token?}',
+                    [CheckoutController::class, 'getBankTransferInfo'])->name('order.checkout.bank-transfer');
             });
         });
     });
@@ -100,6 +109,8 @@ AdminHelper::registerRoutes(function () {
         Route::resource('themes', ThemeController::class)->parameters([
             'themes' => 'theme',
         ]);
+        Route::get('themes/{theme}/download-database', [ThemeController::class, 'downloadDatabase'])
+            ->name('themes.download-database');
 
         // Source Codes
         Route::resource('source-codes', SourceCodeController::class)->parameters([

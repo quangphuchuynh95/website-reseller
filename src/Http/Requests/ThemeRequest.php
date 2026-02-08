@@ -16,7 +16,7 @@ class ThemeRequest extends Request
             'categories' => 'nullable|array',
             'categories.*' => 'exists:wr_categories,id',
             'source_code_id' => 'nullable|exists:wr_source_codes,id',
-            'database_file' => 'nullable|file|mimes:sql|max:102400',
+            'database_file' => 'nullable|file|extensions:sql',
         ];
     }
 }

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->foreignId('subscription_period_id')->nullable()->constrained('wr_subscription_periods')->nullOnDelete();
             $table->string('name');
             $table->decimal('commit_price', 15, 2);
-            $table->string('payment_interval');
             $table->timestamp('start_at')->nullable();
             $table->timestamp('next_expires_at')->nullable();
             $table->string('status');

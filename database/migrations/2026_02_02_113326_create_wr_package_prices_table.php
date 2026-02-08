@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('package_id')->constrained('wr_packages')->cascadeOnDelete();
             $table->foreignId('subscription_period_id')->constrained('wr_subscription_periods')->cascadeOnDelete();
             $table->string('name');
+            $table->text('description');
             $table->integer('sequence')->default(0);
-            $table->string('payment_interval');
             $table->decimal('price', 15, 2);
             $table->timestamps();
         });

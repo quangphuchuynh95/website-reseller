@@ -78,7 +78,25 @@ class ThemeForm extends FormAbstract
                 FileField::class,
                 FileFieldOption::make()
                     ->label('Database File')
-                    ->helperText('Upload an SQL file for theme database (Max: 100MB)')
+                    ->helperText($this->getDatabaseFileHelperText())
             );
+    }
+
+    protected function getDatabaseFileHelperText(): string
+    {
+        $model = $this->getModel();
+
+        if ($model && $model->database_file) {
+            $downloadUrl = route('website-reseller.themes.download-database', $model->id);
+            $fileName = basename($model->database_file);
+
+            return sprintf(
+                'Current file: <a href="%s" target="_blank">%s</a><br>Leave empty if you don\'t want to change the file.',
+                $downloadUrl,
+                $fileName
+            );
+        }
+
+        return 'Upload an SQL file for theme database (Max: 100MB)';
     }
 }

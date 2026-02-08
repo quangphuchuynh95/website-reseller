@@ -14,8 +14,8 @@ use Botble\Theme\Facades\Theme;
 use FriendsOfBotble\VietnamBankQr\VietQR;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use QuangPhuc\WebsiteReseller\Enums\SubscriptionStatusEnum;
 use QuangPhuc\WebsiteReseller\Http\Requests\Public\PostCheckoutRequest;
 use QuangPhuc\WebsiteReseller\Models;
 use QuangPhuc\WebsiteReseller\Supports\CheckoutHelper;
@@ -306,6 +306,7 @@ class CheckoutController extends BaseController
         ?string $domain = null
     ): Models\Subscription {
         return Models\Subscription::create([
+            'status' => SubscriptionStatusEnum::PENDING,
             'customer_id' => $customer->id,
             'theme_id' => $theme->id,
             'package_id' => $package->id,

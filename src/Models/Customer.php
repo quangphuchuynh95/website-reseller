@@ -33,4 +33,9 @@ class Customer extends BaseModel implements AuthenticatableContract
     {
         return $this->hasMany(Website::class);
     }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
 }

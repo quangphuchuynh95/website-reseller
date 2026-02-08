@@ -6,6 +6,8 @@ use Botble\Base\Http\Actions\DeleteResourceAction;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Supports\Breadcrumb;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use QuangPhuc\WebsiteReseller\Forms\ThemeForm;
 use QuangPhuc\WebsiteReseller\Http\Requests\ThemeRequest;
 use QuangPhuc\WebsiteReseller\Models\Theme;
@@ -83,7 +85,9 @@ class ThemeController extends BaseController
 
         if ($databaseFile = $request->file('database_file')) {
             $filename = "website_{$theme->id}.sql";
-            $path = $databaseFile->storeAs('themes/databases', $filename);
+            $path = $databaseFile->storeAs('themes/databases', $filename, [
+                'disk' => 'local',
+            ]);
             $theme->update(['database_file' => $path]);
         }
 
@@ -96,5 +100,16 @@ class ThemeController extends BaseController
     public function destroy(Theme $theme)
     {
         return DeleteResourceAction::make($theme);
+    }
+
+    public function downloadDatabase(Theme $theme): StreamedResponse
+    {
+        abort_unless($theme->database_file, 404);
+        abort_unless(Storage::disk('local')->exists($theme->database_file), 404);
+
+        return Storage::disk('local')->download(
+            $theme->database_file,
+            basename($theme->database_file)
+        );
     }
 }

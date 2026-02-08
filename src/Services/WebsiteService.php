@@ -31,7 +31,7 @@ class WebsiteService
 
     public function slugifyDomain(string $domain): string
     {
-        return Str::slug($domain, '_');
+        return Str::slug($domain, '-');
     }
 
     protected function createDatabase(string $databaseName): void
@@ -57,7 +57,7 @@ class WebsiteService
         $dbPassword = config('database.connections.children_website.password');
 
         Process::run(sprintf(
-            'mysql -h %s -P %s -u %s -p%s %s < %s',
+            env('MYSQL_COMMAND', 'mysql') . ' --host=%s --port=%s --user=%s --password=%s %s < %s',
             escapeshellarg($dbHost),
             escapeshellarg($dbPort),
             escapeshellarg($dbUser),
@@ -106,7 +106,7 @@ class WebsiteService
         $renderedCaddy = Blade::render($caddyTemplate, [
             'website' => $website,
             'database' => [
-                ...config('database.connections.websites'),
+                ...config('database.connections.children_website'),
                 'database' => $slugifiedDomain,
             ],
         ]);
