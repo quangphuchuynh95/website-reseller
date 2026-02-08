@@ -10,6 +10,7 @@ use Botble\Base\Forms\Fields\FileField;
 use Botble\Base\Forms\Fields\TextareaField;
 use Botble\Base\Forms\Fields\TextField;
 use Botble\Base\Forms\FormAbstract;
+use Illuminate\Support\Facades\File;
 use QuangPhuc\WebsiteReseller\Http\Requests\SourceCodeRequest;
 use QuangPhuc\WebsiteReseller\Models\SourceCode;
 
@@ -34,7 +35,7 @@ class SourceCodeForm extends FormAbstract
                 FileField::class,
                 FileFieldOption::make()
                     ->label('Source Code Archive')
-                    ->helperText('Upload a zip file containing the source code (Max: 500MB)')
+                    ->helperText($this->getFilesHelperText())
             )
             ->add(
                 'caddy_template',
@@ -50,5 +51,23 @@ class SourceCodeForm extends FormAbstract
                     ->label('Setup command (Bash)')
                     ->rows(10)
             );
+    }
+
+    protected function getFilesHelperText(): string
+    {
+        $model = $this->getModel();
+
+        if ($model && $model->slug) {
+            $sourcePath = config('plugins.website-reseller.source-code.base') . '/' . $model->slug;
+
+            if (File::isDirectory($sourcePath)) {
+                return sprintf(
+                    'Current path: <code>%s</code><br>Leave empty if you don\'t want to change the files.',
+                    $sourcePath
+                );
+            }
+        }
+
+        return 'Upload a zip file containing the source code (Max: 500MB)';
     }
 }
